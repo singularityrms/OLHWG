@@ -1,2 +1,2 @@
-# generation_backbone
-联机文字生成
+# Online Chinese Handwriting Generation
+Coming soon
