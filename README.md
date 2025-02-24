@@ -1,2 +1,2 @@
 # Online Chinese Handwriting Generation
-Coming soon
+Not ready. Coming soon.
