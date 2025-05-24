@@ -33,8 +33,8 @@ The description of each data file can be found there.
 |`./bonibox_gen/count.py`   | Count the border information of each character type in the dataset|
 |`./bonibox_gen/char_boxes.npy`   | The border information of each character type  （Use Gaussian Distribution|
 |`./bonibox_gen/train_box_generator.py`  | Train the layout planner LSTM module            |
-|`./bonibox_gen/simpebox.py` | Generate layout utilizing Gaussian Distribution for each character |
-|`./bonibox_gen/generatebox.py` | Generate layout utilizing Network|
+|`./bonibox_gen/simpebox.py` | Generate layout utilizing Gaussian distribution for each character |
+|`./bonibox_gen/generatebox.py` | Generate layout utilizing LSTM network|
 |`./bonibox_gen/evaluate_box.py` | Evaluate the generated layout   |
 
 > 1. Get the data `./bonibox_gen/char_boxes.npy`
