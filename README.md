@@ -45,3 +45,15 @@ The required environment is particularly simple, only basic libraries such as to
 
 ### Full Text Line Generation
 > Utilizing `generate_line.py`
+
+## Notification
+The code is a bit messy. Please be understanding! Due to graduation, some files were lost. If you have any questions, feel free to communicate with the author at any time. Wish you all smooth progress in your scientific research!
+
+If you find our work helpful, please cite us using:
+```bibtex
+@article{ren2024decoupling,
+  title={Decoupling Layout from Glyph in Online Chinese Handwriting Generation},
+  author={Ren, Min-Si and Zhang, Yan-Ming and Chen, Yi},
+  journal={arXiv preprint arXiv:2410.02309},
+  year={2024}
+}
