@@ -1,9 +1,11 @@
 # Decoupling Layout from Glyph in Online Chinese Handwriting Generation
 ## 🎉🎉🎉 This work has been accepted by ICLR2025 🎉🎉🎉
-## Data
+## Data and Enviroment
 The data can be download at "https://huggingface.co/datasets/Immortalman12/OLHWD/tree/main".
 
 The description of each data file can be found there.
+
+The required environment is particularly simple, only basic libraries such as torch, numpy, matplotlib, and math are needed.
 
 ## How to build a framework for Online Chinese Handwriting Generation
 **It consists of two steps:**  
