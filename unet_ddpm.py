@@ -1,4 +1,5 @@
 from basemodel import *
+import pdb
 
 class HParams():
     def __init__(self):
@@ -190,6 +191,11 @@ class DDPM(nn.Module):
         temp = x_t - (self.beta[t] / torch.sqrt(1 - self.alpha_cumprod[t])) * predict_noise
         return temp / torch.sqrt(self.alpha[t])
     
+    def estimate_x0(self, x_t, t, predict_noise):
+        # 计算 sqrt(alpha_cumprod[t]) 和 sqrt(1 - alpha_cumprod[t])
+        x0_pred = (x_t - torch.sqrt(1 - self.alpha_cumprod[t]) * predict_noise) / torch.sqrt(self.alpha_cumprod[t])
+        return x0_pred
+    
     def generate(self, tags, durations, style_features=None, var=0.9): 
         # tags: b, len
         bs = len(tags)
@@ -203,8 +209,8 @@ class DDPM(nn.Module):
         x = torch.randn(bs, 3, length).to(device)
         for i in range(hp.time_step):
             t = hp.time_step - 1 - i
-            if t%300 == 0: 
-                print(t)
+            #if t%300 == 0: 
+            #    print(t)
             t = torch.tensor([t]).to(device)
 
             inputs = self.get_contents_times(x, t=t, tags=tags, durations=durations)
@@ -234,22 +240,36 @@ class DDPM(nn.Module):
         
         loss /= 12
         return loss
+    
+    #### 单字生成的guidance方法 只实现了对content style也可类似实现####
+    def optimize_x_t_1(self, x, t, tags, durations, classifier, char_ids, style_features, lr):
+        # x是已经算出的 xt-1的均值  .requires_grad
+        sigma = torch.sqrt(0.8 * self.beta[t] * (1 - self.alpha_cumprod[t-1]) / (1 - self.alpha_cumprod[t]))
+        z = torch.randn_like(x)
+        x_ = x + sigma * z  #x t-1 尝试加噪声 
+        x_.requires_grad_(True)
 
-    #### 单字生成的classifier guidance ####
-    def optimize_xt(self, xt, classifier, char_ids, lr):
-        xt.requires_grad_(True)
+        # 根据xt-1预测x0
+        inputs = self.get_contents_times(x_, t=t-1, tags=tags, durations=durations)
+        predict_noise = self.pred_noise(inputs, style_features)
+        x0_pred = self.estimate_x0(x_,t-1,predict_noise)
 
-        p = classifier(xt)
+        p = classifier(x0_pred)
         p = torch.softmax(p, dim=1)
         p = p[np.arange(len(char_ids)), char_ids].mean()
         loss = -p
         loss.backward()
 
-        with torch.no_grad():
-            #print(lr * xt.grad)
-            xt -= lr * xt.grad
+        b, n, l = x.shape
+        radius = torch.sqrt(torch.tensor(l * (n))) * lr *sigma
+        grad = x_.grad #### xt-1的梯度x_ 或者xt的梯度x 
+        grad_norm = torch.linalg.norm(grad, dim=[1, 2], keepdim=True)
+        d_star = -radius * grad / (grad_norm)
+        
+        x = x_ + d_star
 
-        return xt
+        return x
+
 
     def guided_generate(self, tags, durations, classifier=None, style_features=None): 
         # tags: b, len
@@ -259,25 +279,26 @@ class DDPM(nn.Module):
         char_ids = []
         for i in range(bs):
             char_ids.append(tags[i][1])
-        #print(char_ids)
 
         x = torch.randn(bs, 3, length).to(device)
         for i in range(hp.time_step):
             t = hp.time_step - 1 - i
-            if t%300 == 0: 
-                print(t)
             t = torch.tensor([t]).to(device)
 
             inputs = self.get_contents_times(x, t=t, tags=tags, durations=durations)
             predict_noise = self.pred_noise(inputs, style_features)
+
+            ## mean of xt-1
             x = self.remove_noise(x, t, predict_noise)
             
+            # 添加噪声
             if t > 15:
-                sigma = torch.sqrt(0.8 * self.beta[t] * (1 - self.alpha_cumprod[t-1]) / (1 - self.alpha_cumprod[t]))
-                x += sigma * torch.randn_like(x)
-
-            #if t > 15 and t < 200:
-            #    with torch.enable_grad():
-            #        x = self.optimize_xt(x, classifier, char_ids, lr=0.1)
+                if t<300:
+                    with torch.enable_grad():
+                        ### guidance ###
+                        x = self.optimize_x_t_1(x, t, tags, durations, classifier, char_ids, style_features, lr=0.1)
+                else:
+                    sigma = torch.sqrt(0.8 * self.beta[t] * (1 - self.alpha_cumprod[t-1]) / (1 - self.alpha_cumprod[t]))
+                    x += sigma * torch.randn_like(x)
 
         return x
