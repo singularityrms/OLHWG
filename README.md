@@ -1,6 +1,6 @@
 # Decoupling Layout from Glyph in Online Chinese Handwriting Generation
 ## 🎉🎉🎉 This work has been accepted by ICLR2025 🎉🎉🎉
-## Data and Enviroment
+## Data and Environment
 The data can be download at "https://huggingface.co/datasets/Immortalman12/OLHWD/tree/main".
 
 The description of each data file can be found there.
