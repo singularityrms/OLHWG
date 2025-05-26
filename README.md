@@ -51,9 +51,10 @@ The code is a bit messy. Please be understanding! Due to graduation, some files 
 
 If you find our work helpful, please cite us using:
 ```bibtex
-@article{ren2024decoupling,
+@inproceedings{ren2025decoupling,
   title={Decoupling Layout from Glyph in Online Chinese Handwriting Generation},
-  author={Ren, Min-Si and Zhang, Yan-Ming and Chen, Yi},
-  journal={arXiv preprint arXiv:2410.02309},
-  year={2024}
+  author={Minsi Ren and Yan-Ming Zhang and Yi Chen},
+  booktitle={The Thirteenth International Conference on Learning Representations},
+  year={2025},
+  url={https://openreview.net/forum?id=DhHIw9Nbl1}
 }
